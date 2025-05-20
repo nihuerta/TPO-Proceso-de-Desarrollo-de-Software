@@ -1,9 +1,7 @@
-package moduloNotificaciones.estrategias;
-
 import moduloNotificaciones.Notificacion;
-import moduloNotificaciones.estrategias.adapters.email.AdapterNotificadorEmail;
+import moduloNotificaciones.estrategias.adapters.NotificacionEmail.AdapterNotificadorEmail;
 
-public class Email implements Notificador {
+public class NotificacionEmail implements Notificador {
 
 	private AdapterJavaMail adapter;
 	
