@@ -14,6 +14,11 @@ public class NecesitamosJugadores implements IEstadoPartido {
 
     @Override  
     public void rechazarPartido(Partido partido) {
-        // TODO: Implementar la lógica para rechazar el partido
+        return partido.setEstado(new Cancelado());
+    }
+
+    @Override
+    public void jugarPartido(Partido partido) {
+        // TODO: Implementar la lógica para jugar el partido
     }
 }

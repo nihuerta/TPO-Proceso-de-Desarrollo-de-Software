@@ -16,4 +16,9 @@ public class Cancelado implements IEstadoPartido {
     public void rechazarPartido(Partido partido) {
         // TODO: Implementar la lógica para rechazar el partido
     }
+
+    @Override
+    public void jugarPartido(Partido partido) {
+        // TODO: Implementar la lógica para jugar el partido
+    }
 }
