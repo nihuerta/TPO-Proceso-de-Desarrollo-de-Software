@@ -9,7 +9,7 @@ public class Partido {
     private int duracion;
     private Geolocalizacion zona;
     private LocalDateTime horario;
-    private EstadoPartido estado;
+    private IEstadoPartido estado;
     private Usuario administrador;
     private List<Usuario> jugadores;
     private EstrategiaEmparejador estrategia;
@@ -65,7 +65,7 @@ public class Partido {
         estado.cancelar(this);
     }
 
-    void cambiarEstado(EstadoPartido nuevoEstado) {
+    public void cambiarEstado(IEstadoPartido nuevoEstado) {
         this.estado = nuevoEstado;
         notificarCambioEstado();
     }
@@ -125,7 +125,7 @@ public class Partido {
         return horario;
     }
 
-    public EstadoPartido getEstado() {
+    public IEstadoPartido getEstado() {
         return estado;
     }
 
