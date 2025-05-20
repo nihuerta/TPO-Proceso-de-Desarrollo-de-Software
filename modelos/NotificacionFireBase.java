@@ -1,8 +1,6 @@
-package moduloNotificaciones.estrategias;
-
 import moduloNotificaciones.Notificacion;
 
-public class FireBase implements Notificador {
+public class NotificacionFireBase implements Notificador {
 
 
 
