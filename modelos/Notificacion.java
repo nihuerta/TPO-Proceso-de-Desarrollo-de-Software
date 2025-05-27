@@ -1,4 +1,4 @@
-package moduloNotificaciones;
+package modelos;
 
 public class Notificacion {
 	private String emailDestinatario;
