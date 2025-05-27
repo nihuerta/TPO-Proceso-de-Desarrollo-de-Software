@@ -13,7 +13,7 @@ public class Partido {
     private Usuario administrador;
     private List<Usuario> jugadores;
     private EstrategiaEmparejador estrategia;
-
+    private List<Observador> observadores = new ArrayList<>();
     
     public Partido(String deporte, int cantJugadores, int duracion, Geolocalizacion zona, 
                   LocalDateTime horario, Usuario administrador) {
@@ -68,6 +68,21 @@ public class Partido {
     public void cambiarEstado(IEstadoPartido nuevoEstado) {
         this.estado = nuevoEstado;
         notificarCambioEstado();
+    }
+
+    private void notificarCambioEstado() {
+        String evento = "El partido cambió de estado a: " + estado.getClass().getSimpleName();
+        for (Observador observador : observadores) {
+            observador.actualizar(this, evento);
+        }
+    }
+
+    public void agregarObservador(Observador observador) {
+        observadores.add(observador);
+    }
+
+    public void quitarObservador(Observador observador) {
+        observadores.remove(observador);
     }
 
     private void notificarCambioEstado() {
