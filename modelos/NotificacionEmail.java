@@ -1,21 +1,19 @@
 import moduloNotificaciones.Notificacion;
-import moduloNotificaciones.estrategias.adapters.NotificacionEmail.AdapterNotificadorEmail;
+import moduloNotificaciones.estrategias.adapters.NotificacionEmail.AdapterJavaMail;
 
-public class NotificacionEmail implements Notificador {
+public class NotificacionEmail implements Observador {
 
-	private AdapterJavaMail adapter;
-	
-	public void setAdapter(AdapterJavaMail adapter) {
-		this.adapter = adapter;
-	}
+    private AdapterJavaMail adapter;
 
-	public Email(AdapterJavaMail adapter) {
-		super();
-		this.adapter = adapter;
-	}
+    public NotificacionEmail(AdapterJavaMail adapter) {
+        this.adapter = adapter;
+    }
 
-	public void enviar(Notificacion notificacion) {
-		this.adapter.enviarEmail(notificacion);
-	}
-
+    @Override
+    public void actualizar(Partido partido, String evento) {
+        Notificacion notificacion = new Notificacion();
+        notificacion.mensaje = evento;
+        notificacion.emailDestinatario = partido.getAdministrador().getEmail(); // o notificar a todos
+        adapter.enviarEmail(notificacion);
+    }
 }
