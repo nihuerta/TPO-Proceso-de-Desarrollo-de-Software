@@ -1,11 +1,13 @@
 import moduloNotificaciones.Notificacion;
 
-public class NotificacionFireBase implements Notificador {
+public class NotificacionFireBase implements Observador {
 
-
-
-	public void enviarNotificacion(Notificacion notificacion) {
-
-	}
-
+    @Override
+    public void actualizar(Partido partido, String evento) {
+        Notificacion notificacion = new Notificacion();
+        notificacion.mensaje = evento;
+        System.out.println(" Firebase Notification: " + notificacion.mensaje);
+        // Aquí se podría integrar con SDK Firebase
+    }
 }
+
