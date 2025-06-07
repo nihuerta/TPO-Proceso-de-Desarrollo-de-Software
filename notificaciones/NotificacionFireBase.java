@@ -1,4 +1,7 @@
-package modelos;
+package notificaciones;
+
+import modelos.Partido;
+import notificaciones.Notificacion;
 
 public class NotificacionFireBase implements Observador {
 

@@ -1,18 +1,20 @@
-package modelos;
+package estados;
 
-public class PartidoArmado implements IEstadoPartido {
+import modelos.Partido;
+import modelos.Usuario;
+
+public class NecesitamosJugadores implements IEstadoPartido {
 
     @Override
     public void validarCondiciones(Partido partido) {
-        if (!partido.estaCompleto()) {
-            partido.cambiarEstado(new NecesitamosJugadores());
-            throw new IllegalStateException("El partido no tiene suficientes jugadores");
+        if (partido.estaCompleto()) {
+            partido.cambiarEstado(new PartidoArmado());
         }
     }
 
     @Override
     public void aceptarPartido(Partido partido) {
-        partido.cambiarEstado(new Confirmado());
+        throw new IllegalStateException("No se puede aceptar un partido que aún no está armado");
     }
 
     @Override
@@ -22,17 +24,17 @@ public class PartidoArmado implements IEstadoPartido {
 
     @Override
     public void iniciarPartido(Partido partido) {
-        throw new IllegalStateException("Debe confirmarse antes de iniciar");
+        throw new IllegalStateException("No se puede iniciar un partido incompleto");
     }
 
     @Override
     public void jugarPartido(Partido partido) {
-        throw new IllegalStateException("Debe confirmarse antes de jugar");
+        throw new IllegalStateException("No se puede jugar un partido incompleto");
     }
 
     @Override
     public void confirmarParticipacion(Partido partido, Usuario jugador) {
-        // Lógica para marcar confirmación (si tuvieras una estructura por jugador)
+        throw new IllegalStateException("No se puede confirmar participación aún");
     }
 
     @Override
@@ -42,11 +44,11 @@ public class PartidoArmado implements IEstadoPartido {
 
     @Override
     public void finalizarPartido(Partido partido) {
-        throw new IllegalStateException("El partido no comenzó");
+        throw new IllegalStateException("El partido ni siquiera ha comenzado");
     }
 
     @Override
     public boolean puedeUnirseJugador() {
-        return false;
+        return true;
     }
 }

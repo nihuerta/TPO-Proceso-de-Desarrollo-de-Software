@@ -1,4 +1,8 @@
-package modelos;
+package notificaciones;
+
+import adaptadores.AdapterJavaMail;
+import modelos.Partido;
+import notificaciones.Notificacion;
 
 public class NotificacionEmail implements Observador {
 
@@ -13,7 +17,11 @@ public class NotificacionEmail implements Observador {
         Notificacion notificacion = new Notificacion();
         notificacion.setMensaje(evento);
         notificacion.setEmailDestinatario(partido.getAdministrador().getEmail()); // o notificar a todos
-        adapter.enviarEmail(notificacion);
+        adapter.enviarEmail(
+            notificacion.getEmailDestinatario(),
+            "Notificación de partido",
+            notificacion.getMensaje()
+        );
     }
 
 }

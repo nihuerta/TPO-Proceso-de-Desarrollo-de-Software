@@ -1,6 +1,9 @@
-package modelos;
+package estados;
 
-public class Confirmado implements IEstadoPartido {
+import modelos.Partido;
+import modelos.Usuario;
+
+public class Finalizado implements IEstadoPartido {
 
     @Override
     public void validarCondiciones(Partido partido) {}
@@ -9,14 +12,10 @@ public class Confirmado implements IEstadoPartido {
     public void aceptarPartido(Partido partido) {}
 
     @Override
-    public void rechazarPartido(Partido partido) {
-        partido.cambiarEstado(new Cancelado());
-    }
+    public void rechazarPartido(Partido partido) {}
 
     @Override
-    public void iniciarPartido(Partido partido) {
-        partido.cambiarEstado(new EnJuego());
-    }
+    public void iniciarPartido(Partido partido) {}
 
     @Override
     public void jugarPartido(Partido partido) {}
@@ -25,13 +24,11 @@ public class Confirmado implements IEstadoPartido {
     public void confirmarParticipacion(Partido partido, Usuario jugador) {}
 
     @Override
-    public void cancelar(Partido partido) {
-        partido.cambiarEstado(new Cancelado());
-    }
+    public void cancelar(Partido partido) {}
 
     @Override
     public void finalizarPartido(Partido partido) {
-        partido.cambiarEstado(new Finalizado());
+        // Ya está finalizado
     }
 
     @Override
@@ -39,3 +36,5 @@ public class Confirmado implements IEstadoPartido {
         return false;
     }
 }
+
+

@@ -1,5 +1,11 @@
 package modelos;
 
+import notificaciones.Observador;
+import estrategias.EstrategiaEmparejador;
+import estados.IEstadoPartido;
+import estados.NecesitamosJugadores;
+import estados.PartidoArmado;
+import estados.Confirmado;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -106,7 +112,7 @@ public class Partido {
         return !estaCompleto() && 
                !contieneJugador(jugador) && 
                estrategia != null && 
-               estrategia.cumpleRequisitos(jugador) &&
+               estrategia.cumpleRequisitos(jugador, this) &&
                estado.puedeUnirseJugador();
     }
 

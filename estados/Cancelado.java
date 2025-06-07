@@ -1,4 +1,7 @@
-package modelos;
+package estados;
+
+import modelos.Partido;
+import modelos.Usuario;
 
 public class Cancelado implements IEstadoPartido {
 

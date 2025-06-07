@@ -1,4 +1,4 @@
-package modelos;
+package dtos;
 
 public class DeporteDTO {
     private String nombre;

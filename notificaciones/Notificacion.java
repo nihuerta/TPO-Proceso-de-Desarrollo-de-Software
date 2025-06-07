@@ -1,4 +1,4 @@
-package modelos;
+package notificaciones;
 
 public class Notificacion {
 

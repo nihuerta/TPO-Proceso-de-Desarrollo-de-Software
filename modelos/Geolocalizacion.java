@@ -1,5 +1,7 @@
 package modelos;
 
+import dtos.GeolocalizacionDTO;
+
 public class Geolocalizacion {
     private Double latitud;
     private Double longitud;

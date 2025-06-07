@@ -1,4 +1,6 @@
-package modelos;
+package estados;
+import modelos.Partido;
+import modelos.Usuario;
 
 public class EnJuego implements IEstadoPartido {
 

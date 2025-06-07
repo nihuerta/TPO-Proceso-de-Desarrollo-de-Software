@@ -1,4 +1,4 @@
-package modelos;
+package dtos;
 
 public class GeolocalizacionDTO {
     private String latitud;

@@ -1,17 +1,21 @@
-package modelos;
+package estados;
 
-public class NecesitamosJugadores implements IEstadoPartido {
+import modelos.Partido;
+import modelos.Usuario;
+
+public class PartidoArmado implements IEstadoPartido {
 
     @Override
     public void validarCondiciones(Partido partido) {
-        if (partido.estaCompleto()) {
-            partido.cambiarEstado(new PartidoArmado());
+        if (!partido.estaCompleto()) {
+            partido.cambiarEstado(new NecesitamosJugadores());
+            throw new IllegalStateException("El partido no tiene suficientes jugadores");
         }
     }
 
     @Override
     public void aceptarPartido(Partido partido) {
-        throw new IllegalStateException("No se puede aceptar un partido que aún no está armado");
+        partido.cambiarEstado(new Confirmado());
     }
 
     @Override
@@ -21,17 +25,17 @@ public class NecesitamosJugadores implements IEstadoPartido {
 
     @Override
     public void iniciarPartido(Partido partido) {
-        throw new IllegalStateException("No se puede iniciar un partido incompleto");
+        throw new IllegalStateException("Debe confirmarse antes de iniciar");
     }
 
     @Override
     public void jugarPartido(Partido partido) {
-        throw new IllegalStateException("No se puede jugar un partido incompleto");
+        throw new IllegalStateException("Debe confirmarse antes de jugar");
     }
 
     @Override
     public void confirmarParticipacion(Partido partido, Usuario jugador) {
-        throw new IllegalStateException("No se puede confirmar participación aún");
+        // Lógica para marcar confirmación (si tuvieras una estructura por jugador)
     }
 
     @Override
@@ -41,11 +45,11 @@ public class NecesitamosJugadores implements IEstadoPartido {
 
     @Override
     public void finalizarPartido(Partido partido) {
-        throw new IllegalStateException("El partido ni siquiera ha comenzado");
+        throw new IllegalStateException("El partido no comenzó");
     }
 
     @Override
     public boolean puedeUnirseJugador() {
-        return true;
+        return false;
     }
 }
