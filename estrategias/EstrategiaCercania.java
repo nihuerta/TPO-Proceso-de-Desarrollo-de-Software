@@ -8,7 +8,9 @@ public class EstrategiaCercania implements EstrategiaEmparejador {
 
     @Override
     public boolean cumpleRequisitos(Usuario jugador, Partido partido) {
-        return jugador.getZona().distanciaA(partido.getZona()) < 10.0;
+        // El organizador siempre cumple
+        if (jugador.equals(partido.getAdministrador())) return true;
+        return jugador.getZona() != null && partido.getZona() != null && jugador.getZona().distanciaA(partido.getZona()) < 10.0;
     }
 
     @Override

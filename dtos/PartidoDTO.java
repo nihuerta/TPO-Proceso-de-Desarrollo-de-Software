@@ -19,6 +19,10 @@ public class PartidoDTO {
     public IEstadoPartido estado;
     public Usuario administrador;
     public List<Usuario> jugadores;
+    // NUEVOS CAMPOS PARA RESTRICCION DE NIVEL
+    public tipos.NivelDeJuego nivelMinimo;
+    public tipos.NivelDeJuego nivelMaximo;
+    public boolean cualquierNivel;
 
     public PartidoDTO() {}
 

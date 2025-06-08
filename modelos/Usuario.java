@@ -25,7 +25,9 @@ public class Usuario {
         this.nombre = usuarioDTO.getNombre();
         this.correo = usuarioDTO.getCorreo();
         this.contrasenia = usuarioDTO.getContrasenia();
-        this.deportesFav.add(usuarioDTO.getDeporteFav());
+        if (usuarioDTO.getDeporteFav() != null) {
+            this.deportesFav.add(usuarioDTO.getDeporteFav());
+        }
         this.nivelDeJuego = usuarioDTO.getNivelDeJuego();
     }
 

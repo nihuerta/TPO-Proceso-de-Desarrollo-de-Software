@@ -8,6 +8,8 @@ public class EstrategiaHistorial implements EstrategiaEmparejador {
 
     @Override
     public boolean cumpleRequisitos(Usuario jugador, Partido partido) {
+        // El organizador siempre cumple
+        if (jugador.equals(partido.getAdministrador())) return true;
         return jugador.getPartidosCreados().stream()
                 .anyMatch(p -> p.getAdministrador().equals(partido.getAdministrador()));
     }

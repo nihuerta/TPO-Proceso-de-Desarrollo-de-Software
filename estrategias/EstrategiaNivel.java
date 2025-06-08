@@ -8,7 +8,9 @@ public class EstrategiaNivel implements EstrategiaEmparejador {
 
     @Override
     public boolean cumpleRequisitos(Usuario jugador, Partido partido) {
-        return jugador.getDeportesFav().contains(partido.getDeporte());
+        // El organizador siempre cumple
+        if (jugador.equals(partido.getAdministrador())) return true;
+        return jugador.getDeportesFav().contains(partido.getDeporte().getNombre());
     }
 
     @Override

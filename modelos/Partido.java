@@ -22,6 +22,9 @@ public class Partido {
     private List<Usuario> jugadores;
     private EstrategiaEmparejador estrategia;
     private List<Observador> observadores = new ArrayList<>();
+    private tipos.NivelDeJuego nivelMinimo;
+    private tipos.NivelDeJuego nivelMaximo;
+    private boolean cualquierNivel = true;
     
     public Partido(Deporte deporte, int cantJugadores, int duracion, Geolocalizacion zona,
                   LocalDateTime horario, Usuario administrador) {
@@ -34,6 +37,9 @@ public class Partido {
         this.jugadores = new ArrayList<>();
         this.jugadores.add(administrador);
         this.estado = new NecesitamosJugadores();
+        this.cualquierNivel = true;
+        this.nivelMinimo = null;
+        this.nivelMaximo = null;
     }
 
     public void agregarJugador(Usuario jugador) {
@@ -99,6 +105,11 @@ public class Partido {
         }
     }
 
+    // Setters para nivel
+    public void setNivelMinimo(tipos.NivelDeJuego nivelMinimo) { this.nivelMinimo = nivelMinimo; }
+    public void setNivelMaximo(tipos.NivelDeJuego nivelMaximo) { this.nivelMaximo = nivelMaximo; }
+    public void setCualquierNivel(boolean cualquierNivel) { this.cualquierNivel = cualquierNivel; }
+
     // Métodos de consulta
     public boolean estaCompleto() {
         return jugadores.size() >= cantJugadores;
@@ -109,11 +120,19 @@ public class Partido {
     }
 
     public boolean puedeUnirse(Usuario jugador) {
+        boolean nivelOk = true;
+        if (!cualquierNivel && jugador.getNivelDeJuego() != null) {
+            int nivelJugador = jugador.getNivelDeJuego().ordinal();
+            int min = nivelMinimo != null ? nivelMinimo.ordinal() : 0;
+            int max = nivelMaximo != null ? nivelMaximo.ordinal() : 2;
+            nivelOk = nivelJugador >= min && nivelJugador <= max;
+        }
         return !estaCompleto() && 
                !contieneJugador(jugador) && 
                estrategia != null && 
                estrategia.cumpleRequisitos(jugador, this) &&
-               estado.puedeUnirseJugador();
+               estado.puedeUnirseJugador() &&
+               nivelOk;
     }
 
     private boolean todosConfirmaron() {
@@ -146,4 +165,7 @@ public class Partido {
     public EstrategiaEmparejador getEstrategia() {
         return estrategia;
     }
+    public tipos.NivelDeJuego getNivelMinimo() { return nivelMinimo; }
+    public tipos.NivelDeJuego getNivelMaximo() { return nivelMaximo; }
+    public boolean isCualquierNivel() { return cualquierNivel; }
 }

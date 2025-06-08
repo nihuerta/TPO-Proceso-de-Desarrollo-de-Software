@@ -50,6 +50,10 @@ public class PartidoController {
             dto.horario,
             dto.administrador
         );
+        // NUEVO: setear restricciones de nivel
+        partido.setCualquierNivel(dto.cualquierNivel);
+        partido.setNivelMinimo(dto.nivelMinimo);
+        partido.setNivelMaximo(dto.nivelMaximo);
         
         // Agregar observadores al partido
         observadores.forEach(partido::agregarObservador);
