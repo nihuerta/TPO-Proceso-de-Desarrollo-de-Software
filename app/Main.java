@@ -84,6 +84,41 @@ public class Main {
         partidoCtrl.agregarObservador(notificacionEmail);
         partidoCtrl.agregarObservador(notificacionFireBase);
 
+        // --- HILO DE TRANSICIÓN AUTOMÁTICA DE PARTIDOS ---
+        Thread autoTransitionThread = new Thread(() -> {
+            while (true) {
+                try {
+                    List<Partido> partidos = partidoCtrl.getPartidos();
+                    for (Partido partido : partidos) {
+                        String estado = partido.getEstado().getClass().getSimpleName();
+                        java.time.LocalDateTime ahora = java.time.LocalDateTime.now();
+                        // Si está confirmado y es hora de iniciar
+                        if (estado.equals("Confirmado") && !ahora.isBefore(partido.getHorario())) {
+                            try {
+                                partido.iniciarPartido();
+                                System.out.println("[AUTO] Partido iniciado automáticamente: " + partido.getDeporte().getNombre());
+                            } catch (Exception ignored) {}
+                        }
+                        // Si está en juego y ya terminó
+                        if (estado.equals("EnJuego")) {
+                            java.time.LocalDateTime fin = partido.getHorario().plusMinutes(partido.getDuracion());
+                            if (!ahora.isBefore(fin)) {
+                                try {
+                                    partido.finalizarPartido();
+                                    System.out.println("[AUTO] Partido finalizado automáticamente: " + partido.getDeporte().getNombre());
+                                } catch (Exception ignored) {}
+                            }
+                        }
+                    }
+                    Thread.sleep(30000); // 30 segundos
+                } catch (Exception e) {
+                    // Silenciar errores del hilo
+                }
+            }
+        });
+        autoTransitionThread.setDaemon(true);
+        autoTransitionThread.start();
+
         // Menú principal
         boolean salir = false;
         while (!salir) {
@@ -96,9 +131,7 @@ public class Main {
                 System.out.println("5. Unirse a un partido");
                 System.out.println("6. Listar todos los partidos");
                 System.out.println("7. Cancelar partido");
-                System.out.println("8. Iniciar partido");
-                System.out.println("9. Finalizar partido");
-                System.out.println("10. Salir");
+                System.out.println("8. Salir");
                 System.out.print("Seleccione una opción: ");
                 int opcion = Integer.parseInt(scanner.nextLine());
                 switch (opcion) {
@@ -124,12 +157,6 @@ public class Main {
                         cancelarPartido(partidoCtrl, usuarioCtrl);
                         break;
                     case 8:
-                        iniciarPartido(partidoCtrl, usuarioCtrl);
-                        break;
-                    case 9:
-                        finalizarPartido(partidoCtrl, usuarioCtrl);
-                        break;
-                    case 10:
                         salir = true;
                         break;
                     default:
@@ -287,10 +314,43 @@ public class Main {
                 }
                 System.out.print("Duración del encuentro (minutos): ");
                 int duracion = Integer.parseInt(scanner.nextLine());
-                System.out.print("Ubicación - Ingrese la latitud (ejemplo: -34.6037): ");
-                double lat = Double.parseDouble(scanner.nextLine());
-                System.out.print("Ubicación - Ingrese la longitud (ejemplo: -58.3816): ");
-                double lon = Double.parseDouble(scanner.nextLine());
+                // Sugerir rango de latitud y longitud
+                System.out.println("Ingrese la ubicación del partido.");
+                System.out.println("Latitud recomendada entre -35.0 y -34.0 (CABA y alrededores)");
+                System.out.println("Longitud recomendada entre -59.0 y -57.0 (CABA y alrededores)");
+                double lat, lon;
+                while (true) {
+                    try {
+                        System.out.print("Ubicación - Ingrese la latitud (ejemplo: -34.6037): ");
+                        lat = Double.parseDouble(scanner.nextLine());
+                        if (lat < -90 || lat > 90) {
+                            System.out.println("Latitud inválida. Debe estar entre -90 y 90.");
+                            continue;
+                        }
+                        if (lat < -35.0 || lat > -34.0) {
+                            System.out.println("Advertencia: la latitud está fuera del rango recomendado para CABA y alrededores.");
+                        }
+                        break;
+                    } catch (Exception e) {
+                        System.out.println("Latitud inválida. Intente nuevamente.");
+                    }
+                }
+                while (true) {
+                    try {
+                        System.out.print("Ubicación - Ingrese la longitud (ejemplo: -58.3816): ");
+                        lon = Double.parseDouble(scanner.nextLine());
+                        if (lon < -180 || lon > 180) {
+                            System.out.println("Longitud inválida. Debe estar entre -180 y 180.");
+                            continue;
+                        }
+                        if (lon < -59.0 || lon > -57.0) {
+                            System.out.println("Advertencia: la longitud está fuera del rango recomendado para CABA y alrededores.");
+                        }
+                        break;
+                    } catch (Exception e) {
+                        System.out.println("Longitud inválida. Intente nuevamente.");
+                    }
+                }
                 Geolocalizacion zona = new Geolocalizacion();
                 zona.setLatitud(lat);
                 zona.setLongitud(lon);
@@ -542,86 +602,6 @@ public class Main {
                 break;
             } catch (Exception e) {
                 System.out.println("Error al cancelar partido: " + e.getMessage());
-            }
-        }
-    }
-
-    private static void iniciarPartido(PartidoController partidoCtrl, UsuarioController usuarioCtrl) {
-        while (true) {
-            try {
-                List<Partido> partidos = partidoCtrl.getPartidos();
-                if (partidos.isEmpty()) {
-                    System.out.println("No hay partidos disponibles.");
-                    return;
-                }
-                listarPartidos(partidoCtrl);
-                System.out.print("Seleccione el número de partido a iniciar: ");
-                int partidoIdx = Integer.parseInt(scanner.nextLine()) - 1;
-                if (partidoIdx < 0 || partidoIdx >= partidos.size()) {
-                    System.out.println("Selección inválida de partido.");
-                    continue;
-                }
-                Partido partido = partidos.get(partidoIdx);
-                List<Usuario> usuarios = usuarioCtrl.getUsuarios();
-                for (int i = 0; i < usuarios.size(); i++) {
-                    System.out.println((i + 1) + ". " + usuarios.get(i).getNombre());
-                }
-                System.out.print("Seleccione el organizador (solo el organizador puede iniciar): ");
-                int usuarioIdx = Integer.parseInt(scanner.nextLine()) - 1;
-                if (usuarioIdx < 0 || usuarioIdx >= usuarios.size()) {
-                    System.out.println("Selección inválida de usuario.");
-                    continue;
-                }
-                Usuario usuario = usuarios.get(usuarioIdx);
-                if (!usuario.equals(partido.getAdministrador())) {
-                    System.out.println("Solo el organizador puede iniciar el partido.");
-                    continue;
-                }
-                partidoCtrl.iniciarPartido(partido);
-                System.out.println("Partido iniciado correctamente.");
-                break;
-            } catch (Exception e) {
-                System.out.println("Error al iniciar partido: " + e.getMessage());
-            }
-        }
-    }
-
-    private static void finalizarPartido(PartidoController partidoCtrl, UsuarioController usuarioCtrl) {
-        while (true) {
-            try {
-                List<Partido> partidos = partidoCtrl.getPartidos();
-                if (partidos.isEmpty()) {
-                    System.out.println("No hay partidos disponibles.");
-                    return;
-                }
-                listarPartidos(partidoCtrl);
-                System.out.print("Seleccione el número de partido a finalizar: ");
-                int partidoIdx = Integer.parseInt(scanner.nextLine()) - 1;
-                if (partidoIdx < 0 || partidoIdx >= partidos.size()) {
-                    System.out.println("Selección inválida de partido.");
-                    continue;
-                }
-                Partido partido = partidos.get(partidoIdx);
-                List<Usuario> usuarios = usuarioCtrl.getUsuarios();
-                for (int i = 0; i < usuarios.size(); i++) {
-                    System.out.println((i + 1) + ". " + usuarios.get(i).getNombre());
-                }
-                System.out.print("Seleccione el organizador (solo el organizador puede finalizar): ");
-                int usuarioIdx = Integer.parseInt(scanner.nextLine()) - 1;
-                if (usuarioIdx < 0 || usuarioIdx >= usuarios.size()) {
-                    System.out.println("Selección inválida de usuario.");
-                    continue;
-                }
-                Usuario usuario = usuarios.get(usuarioIdx);
-                if (!usuario.equals(partido.getAdministrador())) {
-                    System.out.println("Solo el organizador puede finalizar el partido.");
-                    continue;
-                }
-                partidoCtrl.finalizarPartido(partido);
-                System.out.println("Partido finalizado correctamente.");
-                break;
-            } catch (Exception e) {
-                System.out.println("Error al finalizar partido: " + e.getMessage());
             }
         }
     }
