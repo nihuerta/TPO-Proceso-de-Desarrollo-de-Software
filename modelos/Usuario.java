@@ -21,14 +21,8 @@ public class Usuario {
     }
 
     // Método para crear usuario desde DTO
-    public void crearUsuario(UsuarioDTO usuarioDTO) {
-        this.nombre = usuarioDTO.getNombre();
-        this.correo = usuarioDTO.getCorreo();
-        this.contrasenia = usuarioDTO.getContrasenia();
-        if (usuarioDTO.getDeporteFav() != null) {
-            this.deportesFav.add(usuarioDTO.getDeporteFav());
-        }
-        this.nivelDeJuego = usuarioDTO.getNivelDeJuego();
+    public void crearUsuario(Usuario usuario) {
+        BaseDatos.usuarios.add(usuario);
     }
 
     // Métodos para deportes favoritos

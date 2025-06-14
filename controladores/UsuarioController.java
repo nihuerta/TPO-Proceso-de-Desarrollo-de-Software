@@ -9,15 +9,15 @@ import java.util.List;
 
 public class UsuarioController {
     private List<Usuario> usuarios;
+    private Usuario usuario;
 
     public UsuarioController() {
         this.usuarios = new ArrayList<>();
     }
 
     public Usuario crearUsuario(UsuarioDTO usuarioDTO) {
-        Usuario usuario = new Usuario();
-        usuario.crearUsuario(usuarioDTO);
-        usuarios.add(usuario);
+        Usuario nuevoUsuario = new Usuario();
+        usuario.crearUsuario(nuevoUsuario);
         return usuario;
     }
 
