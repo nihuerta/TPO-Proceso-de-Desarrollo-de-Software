@@ -3,6 +3,7 @@ package app;
 import controladores.UsuarioController;
 import controladores.DeporteController;
 import controladores.PartidoController;
+import controladores.NotificacionController;
 
 import modelos.Usuario;
 import modelos.Deporte;
@@ -36,18 +37,12 @@ public class Main {
         DeporteController deporteCtrl = new DeporteController();
         PartidoController partidoCtrl = new PartidoController();
 
-        // Crear deportes y usuarios de ejemplo usando los controladores
-        Deporte futbol = new Deporte("Futbol", "Equipo", 10, "Futbol 11", tipos.NivelDeJuego.INTERMEDIO);
-        Deporte tenis = new Deporte("Tenis", "Individual", 2, "Singles", tipos.NivelDeJuego.INTERMEDIO);
-        deporteCtrl.agregarDeporte(futbol);
-        deporteCtrl.agregarDeporte(tenis);
-
         Geolocalizacion zona = new Geolocalizacion();
         zona.setLatitud(-34.6037);
         zona.setLongitud(-58.3816);
 
         // Crear usuarios usando UsuarioController y UsuarioDTO
-        UsuarioDTO adminDTO = new UsuarioDTO();
+/*         UsuarioDTO adminDTO = new UsuarioDTO();
         adminDTO.setNombre("Admin");
         adminDTO.setCorreo("admin@example.com");
         adminDTO.setContrasenia("admin123");
@@ -75,14 +70,9 @@ public class Main {
         jugador2DTO.setNivelDeJuego(tipos.NivelDeJuego.INTERMEDIO);
         Usuario jugador2 = usuarioCtrl.crearUsuario(jugador2DTO);
         usuarioCtrl.actualizarZona(jugador2, zona);
-        usuarioCtrl.agregarDeporteFavorito(jugador2, futbol);
-
-        // Configurar notificaciones
-        AdapterJavaMail adapter = new AdapterJavaMail();
-        NotificacionEmail notificacionEmail = new NotificacionEmail(adapter);
-        NotificacionFireBase notificacionFireBase = new NotificacionFireBase();
-        partidoCtrl.agregarObservador(notificacionEmail);
-        partidoCtrl.agregarObservador(notificacionFireBase);
+        usuarioCtrl.agregarDeporteFavorito(jugador2, futbol); */        // Configurar notificaciones
+        NotificacionController notificacionCtrl = NotificacionController.getInstance();
+        notificacionCtrl.configurarObservadores(partidoCtrl);
 
         // --- HILO DE TRANSICIÓN AUTOMÁTICA DE PARTIDOS ---
         Thread autoTransitionThread = new Thread(() -> {
@@ -209,32 +199,60 @@ public class Main {
                         break;
                     }
                 }
-                usuarioDTO.setContrasenia(contrasenia);
-                System.out.print("¿Desea ingresar un deporte favorito? (s/n): ");
+                usuarioDTO.setContrasenia(contrasenia);                System.out.print("¿Desea ingresar un deporte favorito? (s/n): ");
                 if (scanner.nextLine().trim().equalsIgnoreCase("s")) {
                     List<Deporte> deportes = deporteCtrl.obtenerDeportes();
                     if (deportes.isEmpty()) {
-                        System.out.println("No hay deportes cargados. Cree uno primero.");
+                        System.out.println("No hay deportes cargados. Puede ingresar manualmente su deporte favorito.");
+                        System.out.print("Ingrese el nombre del deporte: ");
+                        String nombreDeporte = scanner.nextLine().trim();
+                        usuarioDTO.setDeporteFav(nombreDeporte);
                     } else {
+                        System.out.println("Deportes disponibles:");
                         for (int i = 0; i < deportes.size(); i++) {
                             System.out.println((i + 1) + ". " + deportes.get(i).getNombre());
                         }
-                        System.out.print("Seleccione el deporte favorito: ");
-                        int idx = Integer.parseInt(scanner.nextLine()) - 1;
-                        usuarioDTO.setDeporteFav(deportes.get(idx).getNombre());
+                        System.out.println("0. Ingresar otro deporte");
+                        System.out.print("Seleccione una opción: ");
+                        int idx = Integer.parseInt(scanner.nextLine());
+                        if (idx == 0) {
+                            System.out.print("Ingrese el nombre del deporte: ");
+                            String nombreDeporte = scanner.nextLine().trim();
+                            usuarioDTO.setDeporteFav(nombreDeporte);
+                        } else {
+                            usuarioDTO.setDeporteFav(deportes.get(idx - 1).getNombre());
+                        }
                     }
-                }
-                System.out.print("¿Desea ingresar su nivel de juego? (s/n): ");
-                if (scanner.nextLine().trim().equalsIgnoreCase("s")) {
-                    System.out.println("1. PRINCIPIANTE\n2. INTERMEDIO\n3. AVANZADO");
-                    System.out.print("Seleccione el nivel: ");
-                    int nivel = Integer.parseInt(scanner.nextLine());
-                    switch (nivel) {
-                        case 1: usuarioDTO.setNivelDeJuego(tipos.NivelDeJuego.PRINCIPIANTE); break;
-                        case 2: usuarioDTO.setNivelDeJuego(tipos.NivelDeJuego.INTERMEDIO); break;
-                        case 3: usuarioDTO.setNivelDeJuego(tipos.NivelDeJuego.AVANZADO); break;
-                        default: usuarioDTO.setNivelDeJuego(tipos.NivelDeJuego.INTERMEDIO);
+                }                System.out.print("¿Desea ingresar su nivel de juego? (s/n): ");
+                String respNivel = scanner.nextLine().trim();
+                if (respNivel.equalsIgnoreCase("s")) {
+                    while (true) {
+                        try {
+                            System.out.println("1. PRINCIPIANTE\n2. INTERMEDIO\n3. AVANZADO");
+                            System.out.print("Seleccione el nivel: ");
+                            int nivel = Integer.parseInt(scanner.nextLine());
+                            switch (nivel) {
+                                case 1:
+                                    usuarioDTO.setNivelDeJuego(tipos.NivelDeJuego.PRINCIPIANTE);
+                                    break;
+                                case 2:
+                                    usuarioDTO.setNivelDeJuego(tipos.NivelDeJuego.INTERMEDIO);
+                                    break;
+                                case 3:
+                                    usuarioDTO.setNivelDeJuego(tipos.NivelDeJuego.AVANZADO);
+                                    break;
+                                default:
+                                    System.out.println("Opción inválida. Por favor seleccione 1, 2 o 3.");
+                                    continue;
+                            }
+                            break;
+                        } catch (NumberFormatException e) {
+                            System.out.println("Por favor ingrese un número válido (1, 2 o 3).");
+                        }
                     }
+                } else {
+                    // Si no se elige un nivel, establecer INTERMEDIO por defecto
+                    usuarioDTO.setNivelDeJuego(tipos.NivelDeJuego.INTERMEDIO);
                 }
                 Usuario usuario = usuarioCtrl.crearUsuario(usuarioDTO);
                 System.out.print("¿Desea ingresar su zona? (s/n): ");
@@ -429,11 +447,9 @@ public class Main {
                 List<Usuario> usuariosNotificar = usuarioCtrl.getUsuarios();
                 for (Usuario u : usuariosNotificar) {
                     List<String> favs = u.getDeportesFav();
-                    if (favs != null && favs.stream().filter(Objects::nonNull).anyMatch(f -> f.equals(deporte.getNombre()))) {
-                        // Simular notificación push y email
+                    if (favs != null && favs.stream().filter(Objects::nonNull).anyMatch(f -> f.equals(deporte.getNombre()))) {                        // Simular notificación push y email
                         System.out.println("[NOTIFICACIÓN] Hola " + u.getNombre() + ", se ha creado un nuevo partido de tu deporte favorito: " + deporte.getNombre());
-                        AdapterJavaMail adapter = new AdapterJavaMail();
-                        adapter.enviarEmail(u.getCorreo(), "Nuevo partido de tu deporte favorito", "Se ha creado un nuevo partido de " + deporte.getNombre() + ". ¡Únete desde la app!");
+                        NotificacionController.getInstance().enviarEmail(u.getCorreo(), "Nuevo partido de tu deporte favorito", "Se ha creado un nuevo partido de " + deporte.getNombre() + ". ¡Únete desde la app!");
                     }
                 }
                 break;
