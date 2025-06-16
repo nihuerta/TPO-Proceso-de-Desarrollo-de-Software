@@ -1,76 +1,35 @@
 package app;
 
-import controladores.UsuarioController;
 import controladores.DeporteController;
-import controladores.PartidoController;
 import controladores.NotificacionController;
-
-import modelos.Usuario;
-import modelos.Deporte;
-import modelos.Geolocalizacion;
-import tipos.NivelDeJuego;
-import modelos.Partido;
-
-import adaptadores.AdapterJavaMail;
-
-import notificaciones.NotificacionEmail;
-import notificaciones.NotificacionFireBase;
-
-import dtos.UsuarioDTO;
+import controladores.PartidoController;
+import controladores.UsuarioController;
 import dtos.PartidoDTO;
-import dtos.GeolocalizacionDTO;
-import dtos.DeporteDTO;
-
-import estrategias.EstrategiaNivel;
+import dtos.UsuarioDTO;
 import estrategias.EstrategiaCercania;
 import estrategias.EstrategiaHistorial;
-
+import estrategias.EstrategiaNivel;
 import java.time.LocalDateTime;
 import java.util.*;
+import modelos.BaseDatos;
+import modelos.Deporte;
+import modelos.Geolocalizacion;
+import modelos.Partido;
+import modelos.Usuario;
 
 public class Main {
     private static final Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
+        // Inicializar datos por defecto
+        BaseDatos.init();
+
         // Controladores
         UsuarioController usuarioCtrl = new UsuarioController();
         DeporteController deporteCtrl = new DeporteController();
         PartidoController partidoCtrl = new PartidoController();
 
-        Geolocalizacion zona = new Geolocalizacion();
-        zona.setLatitud(-34.6037);
-        zona.setLongitud(-58.3816);
-
-        // Crear usuarios usando UsuarioController y UsuarioDTO
-/*         UsuarioDTO adminDTO = new UsuarioDTO();
-        adminDTO.setNombre("Admin");
-        adminDTO.setCorreo("admin@example.com");
-        adminDTO.setContrasenia("admin123");
-        adminDTO.setDeporteFav(futbol.getNombre());
-        adminDTO.setNivelDeJuego(tipos.NivelDeJuego.INTERMEDIO);
-        Usuario admin = usuarioCtrl.crearUsuario(adminDTO);
-        usuarioCtrl.actualizarZona(admin, zona);
-        usuarioCtrl.agregarDeporteFavorito(admin, futbol);
-
-        UsuarioDTO jugador1DTO = new UsuarioDTO();
-        jugador1DTO.setNombre("Jugador1");
-        jugador1DTO.setCorreo("jugador1@example.com");
-        jugador1DTO.setContrasenia("pass123");
-        jugador1DTO.setDeporteFav(futbol.getNombre());
-        jugador1DTO.setNivelDeJuego(tipos.NivelDeJuego.INTERMEDIO);
-        Usuario jugador1 = usuarioCtrl.crearUsuario(jugador1DTO);
-        usuarioCtrl.actualizarZona(jugador1, zona);
-        usuarioCtrl.agregarDeporteFavorito(jugador1, futbol);
-
-        UsuarioDTO jugador2DTO = new UsuarioDTO();
-        jugador2DTO.setNombre("Jugador2");
-        jugador2DTO.setCorreo("jugador2@example.com");
-        jugador2DTO.setContrasenia("pass456");
-        jugador2DTO.setDeporteFav(futbol.getNombre());
-        jugador2DTO.setNivelDeJuego(tipos.NivelDeJuego.INTERMEDIO);
-        Usuario jugador2 = usuarioCtrl.crearUsuario(jugador2DTO);
-        usuarioCtrl.actualizarZona(jugador2, zona);
-        usuarioCtrl.agregarDeporteFavorito(jugador2, futbol); */        // Configurar notificaciones
+        // Configurar notificaciones
         NotificacionController notificacionCtrl = NotificacionController.getInstance();
         notificacionCtrl.configurarObservadores(partidoCtrl);
 
@@ -141,7 +100,7 @@ public class Main {
                         unirseAPartido(partidoCtrl, usuarioCtrl);
                         break;
                     case 6:
-                        listarPartidos(partidoCtrl);
+                        listarPartidos(partidoCtrl, usuarioCtrl);
                         break;
                     case 7:
                         cancelarPartido(partidoCtrl, usuarioCtrl);
@@ -163,43 +122,55 @@ public class Main {
         while (true) {
             try {
                 System.out.println("\n--- Registro de Usuario ---");
-                UsuarioDTO usuarioDTO = new UsuarioDTO();
-                // Validar nombre (solo letras y espacios, no vacío)
-                String nombre;
-                while (true) {
-                    System.out.print("Nombre de usuario (solo letras y espacios): ");
-                    nombre = scanner.nextLine();
-                    if (!nombre.matches("[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{2,50}")) {
-                        System.out.println("Nombre inválido. Solo letras y espacios, mínimo 2 caracteres.");
-                    } else {
-                        break;
-                    }
+                System.out.println("Para cancelar el registro en cualquier momento, escriba 'salir'");
+                
+                System.out.print("Nombre de usuario (solo letras y espacios): ");
+                String nombre = scanner.nextLine();
+                if (nombre.equalsIgnoreCase("salir")) {
+                    System.out.println("Registro cancelado.");
+                    return;
                 }
+                if (!nombre.matches("[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{2,50}")) {
+                    System.out.println("Nombre inválido. Solo letras y espacios, mínimo 2 caracteres.");
+                    continue;
+                }
+
+                UsuarioDTO usuarioDTO = new UsuarioDTO();
                 usuarioDTO.setNombre(nombre);
+
                 // Validar email
-                String correo;
                 while (true) {
                     System.out.print("Correo electrónico: ");
-                    correo = scanner.nextLine();
+                    String correo = scanner.nextLine();
+                    if (correo.equalsIgnoreCase("salir")) {
+                        System.out.println("Registro cancelado.");
+                        return;
+                    }
                     if (!correo.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
                         System.out.println("Correo inválido. Debe tener formato usuario@dominio.com");
                     } else {
+                        usuarioDTO.setCorreo(correo);
                         break;
                     }
                 }
-                usuarioDTO.setCorreo(correo);
-                // Validar contraseña (mínimo 6 caracteres, al menos una letra y un número)
-                String contrasenia;
+
+                // Validar contraseña
                 while (true) {
                     System.out.print("Contraseña (mínimo 6 caracteres, al menos una letra y un número): ");
-                    contrasenia = scanner.nextLine();
+                    String contrasenia = scanner.nextLine();
+                    if (contrasenia.equalsIgnoreCase("salir")) {
+                        System.out.println("Registro cancelado.");
+                        return;
+                    }
                     if (!contrasenia.matches("^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{6,}$")) {
                         System.out.println("Contraseña inválida. Debe tener al menos 6 caracteres, una letra y un número.");
                     } else {
+                        usuarioDTO.setContrasenia(contrasenia);
                         break;
                     }
                 }
-                usuarioDTO.setContrasenia(contrasenia);                System.out.print("¿Desea ingresar un deporte favorito? (s/n): ");
+
+                System.out.print("¿Desea ingresar un deporte favorito? (s/n): ");
                 if (scanner.nextLine().trim().equalsIgnoreCase("s")) {
                     List<Deporte> deportes = deporteCtrl.obtenerDeportes();
                     if (deportes.isEmpty()) {
@@ -283,18 +254,42 @@ public class Main {
         while (true) {
             try {
                 System.out.println("\n--- Crear Deporte ---");
+                System.out.println("Para cancelar la creación en cualquier momento, escriba 'salir'");
+                
                 System.out.print("Nombre del deporte: ");
                 String nombre = scanner.nextLine();
+                if (nombre.equalsIgnoreCase("salir")) {
+                    System.out.println("Creación de deporte cancelada.");
+                    return;
+                }
+
                 System.out.print("Tipo (Equipo/Individual): ");
                 String tipo = scanner.nextLine();
+                if (tipo.equalsIgnoreCase("salir")) {
+                    System.out.println("Creación de deporte cancelada.");
+                    return;
+                }
+
                 System.out.print("Cantidad máxima de jugadores: ");
-                int cantJugadores = Integer.parseInt(scanner.nextLine());
+                String cantJugadoresStr = scanner.nextLine();
+                if (cantJugadoresStr.equalsIgnoreCase("salir")) {
+                    System.out.println("Creación de deporte cancelada.");
+                    return;
+                }
+                int cantJugadores = Integer.parseInt(cantJugadoresStr);
+
                 System.out.print("Categoría o reglas: ");
                 String categoria = scanner.nextLine();
+                if (categoria.equalsIgnoreCase("salir")) {
+                    System.out.println("Creación de deporte cancelada.");
+                    return;
+                }
+
                 if (nombre.equalsIgnoreCase("futbol") && cantJugadores > 22) {
                     System.out.println("Error: En fútbol no puede haber más de 22 jugadores en cancha.");
                     continue;
                 }
+                
                 Deporte nuevo = new Deporte(nombre, tipo, cantJugadores, categoria, tipos.NivelDeJuego.INTERMEDIO);
                 deporteCtrl.agregarDeporte(nuevo);
                 System.out.println("Deporte creado exitosamente!");
@@ -309,6 +304,8 @@ public class Main {
         while (true) {
             try {
                 System.out.println("\n--- Crear Partido ---");
+                System.out.println("Para cancelar la creación en cualquier momento, escriba 'salir'");
+                
                 List<Deporte> deportes = deporteCtrl.obtenerDeportes();
                 if (deportes.isEmpty()) {
                     System.out.println("No hay deportes disponibles. Cree uno primero.");
@@ -317,11 +314,23 @@ public class Main {
                 for (int i = 0; i < deportes.size(); i++) {
                     System.out.println((i + 1) + ". " + deportes.get(i).getNombre());
                 }
-                System.out.print("Seleccione el deporte: ");
-                int deporteIdx = Integer.parseInt(scanner.nextLine()) - 1;
+                System.out.print("Seleccione el deporte (o escriba 'salir' para cancelar): ");
+                String seleccion = scanner.nextLine();
+                if (seleccion.equalsIgnoreCase("salir")) {
+                    System.out.println("Creación de partido cancelada.");
+                    return;
+                }
+                int deporteIdx = Integer.parseInt(seleccion) - 1;
                 Deporte deporte = deportes.get(deporteIdx);
+
                 System.out.print("Cantidad de jugadores requeridos: ");
-                int cantJugadores = Integer.parseInt(scanner.nextLine());
+                String cantStr = scanner.nextLine();
+                if (cantStr.equalsIgnoreCase("salir")) {
+                    System.out.println("Creación de partido cancelada.");
+                    return;
+                }
+                int cantJugadores = Integer.parseInt(cantStr);
+
                 if (deporte.getNombre().equalsIgnoreCase("futbol") && cantJugadores > 22) {
                     System.out.println("Error: En fútbol no puede haber más de 22 jugadores en cancha.");
                     continue;
@@ -330,8 +339,15 @@ public class Main {
                     System.out.println("Error: La cantidad máxima de jugadores para " + deporte.getNombre() + " es " + deporte.getCantidadJugadores());
                     continue;
                 }
+
                 System.out.print("Duración del encuentro (minutos): ");
-                int duracion = Integer.parseInt(scanner.nextLine());
+                String duracionStr = scanner.nextLine();
+                if (duracionStr.equalsIgnoreCase("salir")) {
+                    System.out.println("Creación de partido cancelada.");
+                    return;
+                }
+                int duracion = Integer.parseInt(duracionStr);
+
                 // Sugerir rango de latitud y longitud
                 System.out.println("Ingrese la ubicación del partido.");
                 System.out.println("Latitud recomendada entre -35.0 y -34.0 (CABA y alrededores)");
@@ -372,8 +388,13 @@ public class Main {
                 Geolocalizacion zona = new Geolocalizacion();
                 zona.setLatitud(lat);
                 zona.setLongitud(lon);
-                System.out.print("Horario (ej: 2025-06-08T18:00): ");
-                LocalDateTime horario = LocalDateTime.parse(scanner.nextLine());
+                // Pedir fecha y hora del partido
+                LocalDateTime horario = pedirFechaHora();
+                if (horario == null) {
+                    System.out.println("Creación de partido cancelada.");
+                    return;
+                }
+
                 List<Usuario> usuarios = usuarioCtrl.getUsuarios();
                 if (usuarios.isEmpty()) {
                     System.out.println("No hay usuarios registrados. Registre uno primero.");
@@ -463,20 +484,31 @@ public class Main {
         while (true) {
             try {
                 System.out.println("\n--- Buscar Partidos en mi Zona ---");
+                System.out.println("Para cancelar la búsqueda en cualquier momento, escriba 'salir'");
+                
                 List<Usuario> usuarios = usuarioCtrl.getUsuarios();
                 if (usuarios.isEmpty()) {
                     System.out.println("No hay usuarios registrados. Registre uno primero.");
                     return;
                 }
+                
                 for (int i = 0; i < usuarios.size(); i++) {
                     System.out.println((i + 1) + ". " + usuarios.get(i).getNombre());
                 }
-                System.out.print("Seleccione su usuario: ");
-                int usuarioIdx = Integer.parseInt(scanner.nextLine()) - 1;
+                
+                System.out.print("Seleccione su usuario (o escriba 'salir' para cancelar): ");
+                String seleccion = scanner.nextLine();
+                if (seleccion.equalsIgnoreCase("salir")) {
+                    System.out.println("Búsqueda cancelada.");
+                    return;
+                }
+                
+                int usuarioIdx = Integer.parseInt(seleccion) - 1;
                 if (usuarioIdx < 0 || usuarioIdx >= usuarios.size()) {
                     System.out.println("Selección inválida de usuario.");
                     continue;
                 }
+                
                 Usuario usuario = usuarios.get(usuarioIdx);
                 Geolocalizacion miZona = usuario.getZona();
                 if (miZona == null) {
@@ -503,7 +535,7 @@ public class Main {
         }
     }
 
-    private static void listarPartidos(PartidoController partidoCtrl) {
+    private static void listarPartidos(PartidoController partidoCtrl, UsuarioController usuarioCtrl) {
         try {
             System.out.println("\n--- Todos los Partidos ---");
             List<Partido> partidos = partidoCtrl.getPartidos();
@@ -511,10 +543,87 @@ public class Main {
                 System.out.println("No hay partidos disponibles.");
                 return;
             }
+
+            boolean hayPartidosArmados = false;
             for (int i = 0; i < partidos.size(); i++) {
                 Partido p = partidos.get(i);
                 String estado = p.getEstado().getClass().getSimpleName();
-                System.out.println((i + 1) + ". " + p.getDeporte().getNombre() + " | Jugadores: " + p.getJugadores().size() + "/" + p.getCantJugadores() + " | Estado: " + estado);
+                System.out.println((i + 1) + ". " + p.getDeporte().getNombre() + " | Jugadores: " + 
+                    p.getJugadores().size() + "/" + p.getCantJugadores() + 
+                    " | Estado: " + estado + " | Administrador: " + p.getAdministrador().getNombre());
+                
+                if (estado.equals("PartidoArmado")) {
+                    hayPartidosArmados = true;
+                }
+            }
+
+            if (hayPartidosArmados) {
+                System.out.print("\n¿Desea confirmar algún partido armado? (s/n): ");
+                String respuesta = scanner.nextLine().trim().toLowerCase();
+                
+                if (respuesta.equals("s")) {
+                    System.out.print("Seleccione el número del partido a confirmar: ");
+                    int partidoIdx = Integer.parseInt(scanner.nextLine()) - 1;
+                    
+                    if (partidoIdx >= 0 && partidoIdx < partidos.size()) {
+                        Partido partido = partidos.get(partidoIdx);
+                        
+                        if (!partido.getEstado().getClass().getSimpleName().equals("PartidoArmado")) {
+                            System.out.println("Error: El partido seleccionado no está en estado 'Partido Armado'");
+                            return;
+                        }
+
+                        System.out.println("\nSeleccione el usuario administrador:");
+                        List<Usuario> usuarios = usuarioCtrl.getUsuarios();
+                        for (int i = 0; i < usuarios.size(); i++) {
+                            System.out.println((i + 1) + ". " + usuarios.get(i).getNombre());
+                        }
+
+                        System.out.print("Seleccione el número de usuario: ");
+                        int usuarioIdx = Integer.parseInt(scanner.nextLine()) - 1;
+                        
+                        if (usuarioIdx >= 0 && usuarioIdx < usuarios.size()) {
+                            Usuario usuario = usuarios.get(usuarioIdx);
+                            
+                            if (!usuario.equals(partido.getAdministrador())) {
+                                System.out.println("Error: Solo el administrador puede confirmar el partido");
+                                return;
+                            }
+
+                            try {
+                                partido.cambiarEstado(new estados.Confirmado());
+                                System.out.println("¡Partido confirmado exitosamente!");
+                            } catch (Exception e) {
+                                System.out.println("Error al confirmar el partido: " + e.getMessage());
+                            }
+                        } else {
+                            System.out.println("Selección de usuario inválida.");
+                        }
+                    } else {
+                        System.out.println("Selección de partido inválida.");
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error al listar partidos: " + e.getMessage());
+        }
+    }
+
+    private static void listarPartidosSinConfirmacion(PartidoController partidoCtrl) {
+        try {
+            System.out.println("\n--- Todos los Partidos ---");
+            List<Partido> partidos = partidoCtrl.getPartidos();
+            if (partidos.isEmpty()) {
+                System.out.println("No hay partidos disponibles.");
+                return;
+            }
+
+            for (int i = 0; i < partidos.size(); i++) {
+                Partido p = partidos.get(i);
+                String estado = p.getEstado().getClass().getSimpleName();
+                System.out.println((i + 1) + ". " + p.getDeporte().getNombre() + " | Jugadores: " + 
+                    p.getJugadores().size() + "/" + p.getCantJugadores() + 
+                    " | Estado: " + estado + " | Administrador: " + p.getAdministrador().getNombre());
             }
         } catch (Exception e) {
             System.out.println("Error al listar partidos: " + e.getMessage());
@@ -524,29 +633,48 @@ public class Main {
     private static void unirseAPartido(PartidoController partidoCtrl, UsuarioController usuarioCtrl) {
         while (true) {
             try {
+                System.out.println("\n--- Unirse a Partido ---");
+                System.out.println("Para cancelar en cualquier momento, escriba 'salir'");
+                
                 List<Partido> partidos = partidoCtrl.getPartidos();
                 if (partidos.isEmpty()) {
                     System.out.println("No hay partidos disponibles.");
                     return;
                 }
-                listarPartidos(partidoCtrl);
-                System.out.print("Seleccione el número de partido al que desea unirse: ");
-                int partidoIdx = Integer.parseInt(scanner.nextLine()) - 1;
+                
+                listarPartidosSinConfirmacion(partidoCtrl);
+                System.out.print("Seleccione el número de partido al que desea unirse (o escriba 'salir' para cancelar): ");
+                String seleccionPartido = scanner.nextLine();
+                if (seleccionPartido.equalsIgnoreCase("salir")) {
+                    System.out.println("Operación cancelada.");
+                    return;
+                }
+                
+                int partidoIdx = Integer.parseInt(seleccionPartido) - 1;
                 if (partidoIdx < 0 || partidoIdx >= partidos.size()) {
                     System.out.println("Selección inválida de partido.");
                     continue;
                 }
+                
                 Partido partido = partidos.get(partidoIdx);
                 List<Usuario> usuarios = usuarioCtrl.getUsuarios();
                 for (int i = 0; i < usuarios.size(); i++) {
                     System.out.println((i + 1) + ". " + usuarios.get(i).getNombre());
                 }
-                System.out.print("Seleccione el usuario: ");
-                int usuarioIdx = Integer.parseInt(scanner.nextLine()) - 1;
+                
+                System.out.print("Seleccione el usuario (o escriba 'salir' para cancelar): ");
+                String seleccionUsuario = scanner.nextLine();
+                if (seleccionUsuario.equalsIgnoreCase("salir")) {
+                    System.out.println("Operación cancelada.");
+                    return;
+                }
+                
+                int usuarioIdx = Integer.parseInt(seleccionUsuario) - 1;
                 if (usuarioIdx < 0 || usuarioIdx >= usuarios.size()) {
                     System.out.println("Selección inválida de usuario.");
                     continue;
                 }
+                
                 Usuario usuario = usuarios.get(usuarioIdx);
                 // Validar requisitos antes de agregar
                 boolean puedeUnirse = true;
@@ -585,39 +713,110 @@ public class Main {
     private static void cancelarPartido(PartidoController partidoCtrl, UsuarioController usuarioCtrl) {
         while (true) {
             try {
+                System.out.println("\n--- Cancelar Partido ---");
+                System.out.println("Para cancelar esta operación en cualquier momento, escriba 'salir'");
+                
                 List<Partido> partidos = partidoCtrl.getPartidos();
                 if (partidos.isEmpty()) {
                     System.out.println("No hay partidos disponibles.");
                     return;
                 }
-                listarPartidos(partidoCtrl);
-                System.out.print("Seleccione el número de partido a cancelar: ");
-                int partidoIdx = Integer.parseInt(scanner.nextLine()) - 1;
+                
+                listarPartidos(partidoCtrl, usuarioCtrl);
+                System.out.print("Seleccione el número de partido a cancelar (o escriba 'salir' para cancelar): ");
+                String seleccionPartido = scanner.nextLine();
+                if (seleccionPartido.equalsIgnoreCase("salir")) {
+                    System.out.println("Operación cancelada.");
+                    return;
+                }
+                
+                int partidoIdx = Integer.parseInt(seleccionPartido) - 1;
                 if (partidoIdx < 0 || partidoIdx >= partidos.size()) {
                     System.out.println("Selección inválida de partido.");
                     continue;
                 }
+                
                 Partido partido = partidos.get(partidoIdx);
                 List<Usuario> usuarios = usuarioCtrl.getUsuarios();
                 for (int i = 0; i < usuarios.size(); i++) {
                     System.out.println((i + 1) + ". " + usuarios.get(i).getNombre());
                 }
-                System.out.print("Seleccione el organizador (solo el organizador puede cancelar): ");
-                int usuarioIdx = Integer.parseInt(scanner.nextLine()) - 1;
+                
+                System.out.print("Seleccione el organizador (solo el organizador puede cancelar, o escriba 'salir' para cancelar): ");
+                String seleccionUsuario = scanner.nextLine();
+                if (seleccionUsuario.equalsIgnoreCase("salir")) {
+                    System.out.println("Operación cancelada.");
+                    return;
+                }
+                
+                int usuarioIdx = Integer.parseInt(seleccionUsuario) - 1;
                 if (usuarioIdx < 0 || usuarioIdx >= usuarios.size()) {
                     System.out.println("Selección inválida de usuario.");
                     continue;
                 }
+                
                 Usuario usuario = usuarios.get(usuarioIdx);
                 if (!usuario.equals(partido.getAdministrador())) {
                     System.out.println("Solo el organizador puede cancelar el partido.");
                     continue;
                 }
+                
                 partidoCtrl.cancelarPartido(partido, usuario);
                 System.out.println("Partido cancelado correctamente.");
                 break;
             } catch (Exception e) {
                 System.out.println("Error al cancelar partido: " + e.getMessage());
+            }
+        }
+    }
+
+    private static LocalDateTime pedirFechaHora() {
+        while (true) {
+            try {
+                System.out.println("\nIngrese la fecha y hora del partido:");
+                
+                // Obtener la fecha
+                System.out.print("Día (1-31): ");
+                String diaStr = scanner.nextLine();
+                if (diaStr.equalsIgnoreCase("salir")) return null;
+                int dia = Integer.parseInt(diaStr);
+                
+                System.out.print("Mes (1-12): ");
+                String mesStr = scanner.nextLine();
+                if (mesStr.equalsIgnoreCase("salir")) return null;
+                int mes = Integer.parseInt(mesStr);
+                
+                System.out.print("Año (ej: 2025): ");
+                String anioStr = scanner.nextLine();
+                if (anioStr.equalsIgnoreCase("salir")) return null;
+                int anio = Integer.parseInt(anioStr);
+                
+                // Obtener la hora
+                System.out.print("Hora (0-23): ");
+                String horaStr = scanner.nextLine();
+                if (horaStr.equalsIgnoreCase("salir")) return null;
+                int hora = Integer.parseInt(horaStr);
+                
+                System.out.print("Minutos (0-59): ");
+                String minutosStr = scanner.nextLine();
+                if (minutosStr.equalsIgnoreCase("salir")) return null;
+                int minutos = Integer.parseInt(minutosStr);
+                
+                // Validar que la fecha no sea pasada
+                LocalDateTime fechaHora = LocalDateTime.of(anio, mes, dia, hora, minutos);
+                LocalDateTime ahora = LocalDateTime.now();
+                
+                if (fechaHora.isBefore(ahora)) {
+                    System.out.println("Error: La fecha y hora no puede ser anterior a la actual.");
+                    continue;
+                }
+                
+                return fechaHora;
+                
+            } catch (NumberFormatException e) {
+                System.out.println("Error: Por favor ingrese números válidos.");
+            } catch (Exception e) {
+                System.out.println("Error: Fecha u hora inválida. Asegúrese de ingresar valores correctos.");
             }
         }
     }

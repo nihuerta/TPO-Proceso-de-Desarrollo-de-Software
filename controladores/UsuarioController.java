@@ -1,13 +1,12 @@
 package controladores;
 
-import modelos.Usuario;
-import modelos.BaseDatos;
 import dtos.UsuarioDTO;
-import modelos.Geolocalizacion;
-import modelos.Deporte;
-import tipos.NivelDeJuego;
 import java.util.ArrayList;
 import java.util.List;
+import modelos.BaseDatos;
+import modelos.Deporte;
+import modelos.Geolocalizacion;
+import modelos.Usuario;
 
 public class UsuarioController {
 
@@ -47,14 +46,7 @@ public class UsuarioController {
         } else {
             nuevUsuario.setDeportesFav(new ArrayList<>()); // Inicializar lista vacía
         }
-                    System.out.println(usuarioDTO.getNivelDeJuego());
-
-
-        
-        
-        
-
-
+                    
         BaseDatos.usuarios.add(nuevUsuario);
         return nuevUsuario;
     }

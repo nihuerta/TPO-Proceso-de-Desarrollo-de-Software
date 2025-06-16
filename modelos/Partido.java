@@ -1,14 +1,14 @@
 package modelos;
 
-import notificaciones.Observador;
-import estrategias.EstrategiaEmparejador;
+import estados.Confirmado;
 import estados.IEstadoPartido;
 import estados.NecesitamosJugadores;
 import estados.PartidoArmado;
-import estados.Confirmado;
+import estrategias.EstrategiaEmparejador;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import notificaciones.Observador;
 
 public class Partido {
     // Atributos existentes
@@ -62,7 +62,7 @@ public class Partido {
 
     public void iniciarPartido() {
         if (LocalDateTime.now().isBefore(horario)) {
-            throw new IllegalStateException("Aún no es hora de iniciar el partido");
+            throw new IllegalStateException("No es hora de iniciar el partido");
         }
         estado.iniciarPartido(this);
     }
