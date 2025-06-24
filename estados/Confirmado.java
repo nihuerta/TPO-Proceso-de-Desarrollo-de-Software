@@ -6,10 +6,14 @@ import modelos.Usuario;
 public class Confirmado implements IEstadoPartido {
 
     @Override
-    public void validarCondiciones(Partido partido) {}
+    public void validarCondiciones(Partido partido) {
+        throw new IllegalStateException("No se puede validar condiciones en un partido confirmado");
+    }
 
     @Override
-    public void aceptarPartido(Partido partido) {}
+    public void aceptarPartido(Partido partido) {
+        throw new IllegalStateException("El partido ya está confirmado");
+    }
 
     @Override
     public void rechazarPartido(Partido partido) {
@@ -22,10 +26,14 @@ public class Confirmado implements IEstadoPartido {
     }
 
     @Override
-    public void jugarPartido(Partido partido) {}
+    public void jugarPartido(Partido partido) {
+        throw new IllegalStateException("El partido debe estar en juego para poder jugarse");
+    }
 
     @Override
-    public void confirmarParticipacion(Partido partido, Usuario jugador) {}
+    public void confirmarParticipacion(Partido partido, Usuario jugador) {
+        throw new IllegalStateException("No se puede confirmar participación en un partido confirmado");
+    }
 
     @Override
     public void cancelar(Partido partido) {
