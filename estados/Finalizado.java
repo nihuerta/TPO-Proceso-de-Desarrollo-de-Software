@@ -27,9 +27,7 @@ public class Finalizado implements IEstadoPartido {
     public void cancelar(Partido partido) {}
 
     @Override
-    public void finalizarPartido(Partido partido) {
-        // Ya está finalizado
-    }
+    public void finalizarPartido(Partido partido) {}
 
     @Override
     public boolean puedeUnirseJugador() {

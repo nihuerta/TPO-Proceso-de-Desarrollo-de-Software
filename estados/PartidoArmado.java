@@ -34,9 +34,7 @@ public class PartidoArmado implements IEstadoPartido {
     }
 
     @Override
-    public void confirmarParticipacion(Partido partido, Usuario jugador) {
-        // Lógica para marcar confirmación (si tuvieras una estructura por jugador)
-    }
+    public void confirmarParticipacion(Partido partido, Usuario jugador) {}
 
     @Override
     public void cancelar(Partido partido) {

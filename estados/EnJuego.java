@@ -14,19 +14,13 @@ public class EnJuego implements IEstadoPartido {
     public void rechazarPartido(Partido partido) {}
 
     @Override
-    public void iniciarPartido(Partido partido) {
-        // Ya está iniciado
-    }
+    public void iniciarPartido(Partido partido) {}
 
     @Override
-    public void jugarPartido(Partido partido) {
-        // Lógica de juego (si aplica)
-    }
+    public void jugarPartido(Partido partido) {}
 
     @Override
-    public void confirmarParticipacion(Partido partido, Usuario jugador) {
-        // Demasiado tarde
-    }
+    public void confirmarParticipacion(Partido partido, Usuario jugador) {}
 
     @Override
     public void cancelar(Partido partido) {
