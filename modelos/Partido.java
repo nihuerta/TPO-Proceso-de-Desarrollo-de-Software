@@ -1,10 +1,20 @@
+package modelos;
+
+import estados.Confirmado;
+import estados.EnJuego;
+import estados.Finalizado;
+import estados.IEstadoPartido;
+import estados.NecesitamosJugadores;
+import estados.PartidoArmado;
+import estrategias.EstrategiaEmparejador;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import notificaciones.Observador;
 
 public class Partido {
     // Atributos existentes
-    private String deporte;
+    private Deporte deporte;;
     private int cantJugadores;
     private int duracion;
     private Geolocalizacion zona;
@@ -14,8 +24,11 @@ public class Partido {
     private List<Usuario> jugadores;
     private EstrategiaEmparejador estrategia;
     private List<Observador> observadores = new ArrayList<>();
+    private tipos.NivelDeJuego nivelMinimo;
+    private tipos.NivelDeJuego nivelMaximo;
+    private boolean cualquierNivel = true;
     
-    public Partido(String deporte, int cantJugadores, int duracion, Geolocalizacion zona, 
+    public Partido(Deporte deporte, int cantJugadores, int duracion, Geolocalizacion zona,
                   LocalDateTime horario, Usuario administrador) {
         this.deporte = deporte;
         this.cantJugadores = cantJugadores;
@@ -26,9 +39,11 @@ public class Partido {
         this.jugadores = new ArrayList<>();
         this.jugadores.add(administrador);
         this.estado = new NecesitamosJugadores();
+        this.cualquierNivel = true;
+        this.nivelMinimo = null;
+        this.nivelMaximo = null;
     }
 
-    
     public void agregarJugador(Usuario jugador) {
         if (!puedeUnirse(jugador)) {
             throw new IllegalStateException("El jugador no cumple con los requisitos para unirse");
@@ -49,7 +64,7 @@ public class Partido {
 
     public void iniciarPartido() {
         if (LocalDateTime.now().isBefore(horario)) {
-            throw new IllegalStateException("Aún no es hora de iniciar el partido");
+            throw new IllegalStateException("No es hora de iniciar el partido");
         }
         estado.iniciarPartido(this);
     }
@@ -70,13 +85,6 @@ public class Partido {
         notificarCambioEstado();
     }
 
-    private void notificarCambioEstado() {
-        String evento = "El partido cambió de estado a: " + estado.getClass().getSimpleName();
-        for (Observador observador : observadores) {
-            observador.actualizar(this, evento);
-        }
-    }
-
     public void agregarObservador(Observador observador) {
         observadores.add(observador);
     }
@@ -86,8 +94,9 @@ public class Partido {
     }
 
     private void notificarCambioEstado() {
-        for (Usuario jugador : jugadores) {
-            jugador.notificarCambioEstadoPartido(this);
+        String evento = "El partido cambió de estado a: " + estado.getClass().getSimpleName();
+        for (Observador observador : observadores) {
+            observador.actualizar(this, evento);
         }
     }
 
@@ -97,6 +106,11 @@ public class Partido {
             throw new IllegalStateException("El partido no cumple con los requisitos de la estrategia");
         }
     }
+
+    // Setters para nivel
+    public void setNivelMinimo(tipos.NivelDeJuego nivelMinimo) { this.nivelMinimo = nivelMinimo; }
+    public void setNivelMaximo(tipos.NivelDeJuego nivelMaximo) { this.nivelMaximo = nivelMaximo; }
+    public void setCualquierNivel(boolean cualquierNivel) { this.cualquierNivel = cualquierNivel; }
 
     // Métodos de consulta
     public boolean estaCompleto() {
@@ -108,11 +122,19 @@ public class Partido {
     }
 
     public boolean puedeUnirse(Usuario jugador) {
+        boolean nivelOk = true;
+        if (!cualquierNivel && jugador.getNivelDeJuego() != null) {
+            int nivelJugador = jugador.getNivelDeJuego().ordinal();
+            int min = nivelMinimo != null ? nivelMinimo.ordinal() : 0;
+            int max = nivelMaximo != null ? nivelMaximo.ordinal() : 2;
+            nivelOk = nivelJugador >= min && nivelJugador <= max;
+        }
         return !estaCompleto() && 
                !contieneJugador(jugador) && 
                estrategia != null && 
-               estrategia.cumpleRequisitos(jugador) &&
-               estado.puedeUnirseJugador();
+               estrategia.cumpleRequisitos(jugador, this) &&
+               estado.puedeUnirseJugador() &&
+               nivelOk;
     }
 
     private boolean todosConfirmaron() {
@@ -120,39 +142,32 @@ public class Partido {
     }
 
     // Getters
-    public String getDeporte() {
-        return deporte;
-    }
-
+    public Deporte getDeporte() { return deporte; }
     public int getCantJugadores() {
         return cantJugadores;
     }
-
     public int getDuracion() {
         return duracion;
     }
-
     public Geolocalizacion getZona() {
         return zona;
     }
-
     public LocalDateTime getHorario() {
         return horario;
     }
-
     public IEstadoPartido getEstado() {
         return estado;
     }
-
     public Usuario getAdministrador() {
         return administrador;
     }
-
     public List<Usuario> getJugadores() {
         return new ArrayList<>(jugadores);
     }
-
     public EstrategiaEmparejador getEstrategia() {
         return estrategia;
     }
+    public tipos.NivelDeJuego getNivelMinimo() { return nivelMinimo; }
+    public tipos.NivelDeJuego getNivelMaximo() { return nivelMaximo; }
+    public boolean isCualquierNivel() { return cualquierNivel; }
 }

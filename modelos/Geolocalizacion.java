@@ -1,5 +1,7 @@
 package modelos;
 
+import dtos.GeolocalizacionDTO;
+
 public class Geolocalizacion {
     private Double latitud;
     private Double longitud;
@@ -7,9 +9,16 @@ public class Geolocalizacion {
     // Método para obtener DTO
     public GeolocalizacionDTO obtenerCoordenadas() {
         return new GeolocalizacionDTO(
-            String.valueOf(latitud), 
-            String.valueOf(longitud)
+                String.valueOf(latitud),
+                String.valueOf(longitud)
         );
+    }
+
+    //  Método para usar en EstrategiaCercania
+    public double distanciaA(Geolocalizacion otra) {
+        double dx = this.latitud - otra.latitud;
+        double dy = this.longitud - otra.longitud;
+        return Math.sqrt(dx * dx + dy * dy);
     }
 
     // Getters y Setters

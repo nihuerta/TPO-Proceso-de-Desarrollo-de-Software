@@ -1,33 +1,31 @@
 package controladores;
 
 import modelos.Deporte;
-import java.util.ArrayList;
+import modelos.BaseDatos;
 import java.util.List;
 
 public class DeporteController {
-    private List<Deporte> deportes;
-
     public DeporteController() {
-        this.deportes = new ArrayList<>();
+        // No inicializa lista
     }
 
     public void agregarDeporte(Deporte deporte) {
-        deportes.add(deporte);
+        BaseDatos.deportes.add(deporte);
     }
 
     public void actualizarDeporte(int index, Deporte deporte) {
-        if (index >= 0 && index < deportes.size()) {
-            deportes.set(index, deporte);
+        if (index >= 0 && index < BaseDatos.deportes.size()) {
+            BaseDatos.deportes.set(index, deporte);
         }
     }
 
     public List<Deporte> obtenerDeportes() {
-        return deportes;
+        return BaseDatos.deportes;
     }
 
     public void eliminarDeporte(int index) {
-        if (index >= 0 && index < deportes.size()) {
-            deportes.remove(index);
+        if (index >= 0 && index < BaseDatos.deportes.size()) {
+            BaseDatos.deportes.remove(index);
         }
     }
 }
