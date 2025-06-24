@@ -5,22 +5,34 @@ import modelos.Usuario;
 public class EnJuego implements IEstadoPartido {
 
     @Override
-    public void validarCondiciones(Partido partido) {}
+    public void validarCondiciones(Partido partido) {
+        throw new IllegalStateException("No se puede validar condiciones en un partido en juego");
+    }
 
     @Override
-    public void aceptarPartido(Partido partido) {}
+    public void aceptarPartido(Partido partido) {
+        throw new IllegalStateException("No se puede aceptar un partido en juego");
+    }
 
     @Override
-    public void rechazarPartido(Partido partido) {}
+    public void rechazarPartido(Partido partido) {
+        throw new IllegalStateException("No se puede rechazar un partido en juego");
+    }
 
     @Override
-    public void iniciarPartido(Partido partido) {}
+    public void iniciarPartido(Partido partido) {
+        throw new IllegalStateException("El partido ya está en juego");
+    }
 
     @Override
-    public void jugarPartido(Partido partido) {}
+    public void jugarPartido(Partido partido) {
+        // Aquí podría ir la lógica de juego, si aplica
+    }
 
     @Override
-    public void confirmarParticipacion(Partido partido, Usuario jugador) {}
+    public void confirmarParticipacion(Partido partido, Usuario jugador) {
+        throw new IllegalStateException("No se puede confirmar participación en un partido en juego");
+    }
 
     @Override
     public void cancelar(Partido partido) {
