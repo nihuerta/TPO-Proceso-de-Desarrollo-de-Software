@@ -6,13 +6,10 @@ import modelos.Usuario;
 public class Cancelado implements IEstadoPartido {
 
     @Override
-    public void validarCondiciones(Partido partido) {
-        // Ya fue confirmado, no se necesita validación adicional
-    }
+    public void validarCondiciones(Partido partido) {}
 
     @Override
     public void aceptarPartido(Partido partido) {
-        // El partido ya está confirmado, no se puede volver a aceptar
         throw new IllegalStateException("El partido ya fue confirmado");
     }
 
@@ -32,9 +29,7 @@ public class Cancelado implements IEstadoPartido {
     }
 
     @Override
-    public void confirmarParticipacion(Partido partido, Usuario jugador) {
-        // Ya está confirmado, no se requiere más confirmación
-    }
+    public void confirmarParticipacion(Partido partido, Usuario jugador) {}
 
     @Override
     public void cancelar(Partido partido) {
@@ -48,6 +43,6 @@ public class Cancelado implements IEstadoPartido {
 
     @Override
     public boolean puedeUnirseJugador() {
-        return false; // Ya está confirmado, no pueden unirse más jugadores
+        return false; 
     }
 }
