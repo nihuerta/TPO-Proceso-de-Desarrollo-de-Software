@@ -1,6 +1,8 @@
 package modelos;
 
 import estados.Confirmado;
+import estados.EnJuego;
+import estados.Finalizado;
 import estados.IEstadoPartido;
 import estados.NecesitamosJugadores;
 import estados.PartidoArmado;
