@@ -21,10 +21,10 @@ public class BaseDatos {
 
         try {
             // Inicializar deportes por defecto
-            Deporte futbol = new Deporte("Fútbol", "Equipo", 22, "Fútbol 11", NivelDeJuego.INTERMEDIO);
-            Deporte basket = new Deporte("Basketball", "Equipo", 10, "Basketball 5v5", NivelDeJuego.INTERMEDIO);
-            Deporte tenis = new Deporte("Tenis", "Individual", 4, "Singles/Dobles", NivelDeJuego.INTERMEDIO);
-            Deporte padel = new Deporte("Padel", "Equipo", 4, "Padel 2v2", NivelDeJuego.INTERMEDIO);
+            Deporte futbol = new Deporte("Fútbol", "Equipo", 22, "Fútbol 11");
+            Deporte basket = new Deporte("Basketball", "Equipo", 10, "Basketball 5v5");
+            Deporte tenis = new Deporte("Tenis", "Individual", 4, "Singles/Dobles");
+            Deporte padel = new Deporte("Padel", "Equipo", 4, "Padel 2v2");
             deportes.add(futbol);
             deportes.add(basket);
             deportes.add(tenis);

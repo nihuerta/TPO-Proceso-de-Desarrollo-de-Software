@@ -1,48 +1,66 @@
 package dtos;
 
-public class DeporteDTO {
-    private String nombre;
-    private String tipo;
-    private int cantJugadores;
-    private String categoria;
+import tipos.NivelDeJuego;
 
-    // Constructor
-    public DeporteDTO(String nombre, String tipo, int cantJugadores, String categoria) {
+/**
+ * DTO para transferir datos de Deportes.
+ * Sus atributos coinciden con el modelo Deporte para una correcta correspondencia.
+ */
+public class DeporteDTO {
+
+    private String nombre;
+    private String descripcion;
+    private int cantidadJugadores;
+    private String reglas;
+
+    /**
+     * Constructor completo para crear un DTO con todos los datos.
+     */
+    public DeporteDTO(String nombre, String descripcion, int cantidadJugadores, String reglas) {
         this.nombre = nombre;
-        this.tipo = tipo;
-        this.cantJugadores = cantJugadores;
-        this.categoria = categoria;
+        this.descripcion = descripcion;
+        this.cantidadJugadores = cantidadJugadores;
+        this.reglas = reglas;
     }
 
-    // Getters y Setters
+    /**
+     * Constructor vacío para mayor flexibilidad.
+     */
+    public DeporteDTO() {
+    }
+
+    // --- Getters y Setters ---
+
     public String getNombre() {
         return nombre;
     }
+
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
-    public String getTipo() {
-        return tipo;
-    }
-    public void setTipo(String tipo) {
-        this.tipo = tipo;
-    }
-    public int getCantJugadores() {
-        return cantJugadores;
-    }
-    public void setCantJugadores(int cantJugadores) {
-        this.cantJugadores = cantJugadores;
-    }
-    public String getCategoria() {
-        return categoria;
-    }
-    public void setCategoria(String categoria) {
-        this.categoria = categoria;
+
+    public String getDescripcion() {
+        return descripcion;
     }
 
-    // Método obtenerCordenadas
-    public String obtenerCordenadas() {
-        // Implementación de ejemplo
-        return "Coordenadas no disponibles";
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
     }
+
+    public int getCantidadJugadores() {
+        return cantidadJugadores;
+    }
+
+    public void setCantidadJugadores(int cantidadJugadores) {
+        this.cantidadJugadores = cantidadJugadores;
+    }
+
+    public String getReglas() {
+        return reglas;
+    }
+
+    public void setReglas(String reglas) {
+        this.reglas = reglas;
+    }
+
 }

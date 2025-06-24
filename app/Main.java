@@ -4,6 +4,7 @@ import controladores.DeporteController;
 import controladores.NotificacionController;
 import controladores.PartidoController;
 import controladores.UsuarioController;
+import dtos.DeporteDTO;
 import dtos.PartidoDTO;
 import dtos.UsuarioDTO;
 import estrategias.EstrategiaCercania;
@@ -290,8 +291,12 @@ public class Main {
                     continue;
                 }
                 
-                Deporte nuevo = new Deporte(nombre, tipo, cantJugadores, categoria, tipos.NivelDeJuego.INTERMEDIO);
-                deporteCtrl.agregarDeporte(nuevo);
+                deporteCtrl.crearDeporte(new DeporteDTO(
+                        nombre,
+                        tipo,
+                        cantJugadores,
+                        categoria
+                ));
                 System.out.println("Deporte creado exitosamente!");
                 break;
             } catch (Exception e) {

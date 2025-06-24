@@ -7,15 +7,15 @@ public class Deporte {
     private String descripcion;
     private int cantidadJugadores;
     private String reglas;
-    private NivelDeJuego nivelDeJuego;
+
 
     // Constructor
-    public Deporte(String nombre, String descripcion, int cantidadJugadores, String reglas, NivelDeJuego nivelDeJuego) {
+    public Deporte(String nombre, String descripcion, int cantidadJugadores, String reglas) {
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.cantidadJugadores = cantidadJugadores;
         this.reglas = reglas;
-        this.nivelDeJuego = nivelDeJuego;
+
     }
 
     // Getters y Setters
@@ -43,10 +43,5 @@ public class Deporte {
     public void setReglas(String reglas) {
         this.reglas = reglas;
     }
-    public NivelDeJuego getNivelDeJuego() {
-        return nivelDeJuego;
-    }
-    public void setNivelDeJuego(NivelDeJuego nivelDeJuego) {
-        this.nivelDeJuego = nivelDeJuego;
-    }
+
 }
