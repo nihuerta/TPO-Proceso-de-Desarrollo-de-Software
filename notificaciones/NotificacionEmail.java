@@ -1,6 +1,6 @@
 package notificaciones;
 
-import adaptadores.AdapterJavaMail;
+import adaptadores.IAdapterEmail;
 import modelos.Partido;
 import modelos.Usuario;
 import notificaciones.Notificacion;
@@ -8,9 +8,9 @@ import java.util.List;
 
 public class NotificacionEmail implements Observador {
 
-    private AdapterJavaMail adapter;
+    private IAdapterEmail adapter;
 
-    public NotificacionEmail(AdapterJavaMail adapter) {
+    public NotificacionEmail(IAdapterEmail adapter) {
         this.adapter = adapter;
     }
 

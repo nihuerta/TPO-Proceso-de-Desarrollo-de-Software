@@ -1,18 +1,19 @@
 package controladores;
 
+import adaptadores.IAdapterEmail;
 import adaptadores.AdapterJavaMail;
+import adaptadores.AdapterSendGrid;
 import notificaciones.NotificacionEmail;
 import notificaciones.NotificacionFireBase;
-import controladores.PartidoController;
 
 public class NotificacionController {
     private static NotificacionController instance;
-    private final AdapterJavaMail adapter;
+    private final IAdapterEmail adapter;
     private final NotificacionEmail notificacionEmail;
     private final NotificacionFireBase notificacionFireBase;
 
     private NotificacionController() {
-        this.adapter = new AdapterJavaMail();
+        this.adapter = new AdapterSendGrid();
         this.notificacionEmail = new NotificacionEmail(adapter);
         this.notificacionFireBase = new NotificacionFireBase();
     }

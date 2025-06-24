@@ -1,7 +1,5 @@
 package adaptadores;
 
-import notificaciones.Notificacion;
-
 public interface IAdapterEmail {
-    void enviarEmail(Notificacion notificacion);
+    void enviarEmail(String destinatario, String asunto, String mensaje);
 }
